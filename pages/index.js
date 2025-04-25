@@ -16,12 +16,18 @@ export default function Home() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/api/jobs");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setJobs(data);
-        setLoading(false);
+        setJobs(Array.isArray(data) ? data : []);  // Ensure data is array
       } catch (error) {
-        setError("Failed to fetch jobs");
+        console.error("Failed to fetch jobs:", error);
+        setError("Failed to fetch jobs. Please try again later.");
+        setJobs([]);  // Reset to empty array on error
+      } finally {
         setLoading(false);
       }
     };
@@ -29,20 +35,22 @@ export default function Home() {
     fetchJobs();
   }, [setJobs]);
 
-  const filteredJobs = jobs.filter((job) => {
+  const filteredJobs = jobs?.filter((job) => {
+    if (!job) return false;  // Skip if job is undefined
+    
     const salary =
       typeof job.salary === "string"
         ? parseInt(job.salary.split(" ")[0])
         : job.salary / 100000;
 
     return (
-      job.title.toLowerCase().includes(searchTitle?.toLowerCase() || "") &&
-      job.location.toLowerCase().includes(location?.toLowerCase() || "") &&
+      job.title?.toLowerCase().includes(searchTitle?.toLowerCase() || "") &&
+      job.location?.toLowerCase().includes(location?.toLowerCase() || "") &&
       (!jobType || job.type === jobType) &&
       salary >= salaryRange[0] &&
       salary <= salaryRange[1]
     );
-  });
+  }) || [];
 
   if (loading) {
     return (
