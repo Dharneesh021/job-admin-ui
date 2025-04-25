@@ -17,16 +17,31 @@ export default function Home() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/jobs");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        console.log('Frontend: Starting fetch');
+        
+        // Use absolute URL in production
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api/jobs';
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        console.log('Frontend: Response status:', response.status);
+        
         const data = await response.json();
-        setJobs(Array.isArray(data) ? data : []);  // Ensure data is array
+        console.log('Frontend: Received data:', data);
+    
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch jobs');
+        }
+    
+        setJobs(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("Failed to fetch jobs:", error);
-        setError("Failed to fetch jobs. Please try again later.");
-        setJobs([]);  // Reset to empty array on error
+        console.error("Frontend Error:", error);
+        setError(error.message);
+        setJobs([]);
       } finally {
         setLoading(false);
       }
