@@ -51,20 +51,23 @@ export default function Home() {
   }, [setJobs]);
 
   const filteredJobs = jobs?.filter((job) => {
-    if (!job) return false;  // Skip if job is undefined
+    console.log('Filtering job:', job); // Add this line
+    if (!job) return false;
     
-    const salary =
-      typeof job.salary === "string"
-        ? parseInt(job.salary.split(" ")[0])
-        : job.salary / 100000;
-
-    return (
+    // Convert salary to number for comparison
+    const salary = Number(job.salary) / 100000;
+    console.log('Processed salary:', salary); // Add this line
+  
+    const matches = (
       job.title?.toLowerCase().includes(searchTitle?.toLowerCase() || "") &&
       job.location?.toLowerCase().includes(location?.toLowerCase() || "") &&
       (!jobType || job.type === jobType) &&
       salary >= salaryRange[0] &&
       salary <= salaryRange[1]
     );
+    
+    console.log('Job matches filters:', matches); // Add this line
+    return matches;
   }) || [];
 
   if (loading) {

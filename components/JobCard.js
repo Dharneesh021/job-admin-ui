@@ -2,6 +2,7 @@ import { Card, Text, Badge, Button, Group, Image } from "@mantine/core";
 import { Clock, Building2, Banknote, Building } from "lucide-react";
 
 const JobCard = ({ job }) => {
+  console.log('JobCard received:', job);
   const getCompanyLogo = (companyName) => {
     if (!companyName) return null;
     const normalizedName = companyName.toLowerCase().trim();
